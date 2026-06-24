@@ -1,0 +1,940 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
+  >
+
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      -webkit-text-size-adjust: 100%;
+      text-size-adjust: 100%;
+    }
+
+    body {
+      font-family: Arial, "Noto Sans TC", sans-serif;
+      background: #f5f5f5;
+      padding: 12px;
+      margin: 0;
+      color: #222;
+      font-size: 18px;
+    }
+
+    .app {
+      width: 100%;
+      max-width: 720px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 18px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+      overflow: hidden;
+    }
+
+    .header {
+      padding: 22px 20px 14px;
+      background: #fff8e6;
+      border-bottom: 1px solid #f1e3b8;
+    }
+
+    h2 {
+      margin: 0 0 8px;
+      font-size: 26px;
+    }
+
+    .description {
+      color: #666;
+      font-size: 16px;
+      line-height: 1.6;
+    }
+
+    .progress {
+      display: flex;
+      gap: 8px;
+      padding: 16px 20px 0;
+      background: white;
+    }
+
+    .progress-item {
+      flex: 1;
+      height: 8px;
+      border-radius: 999px;
+      background: #e5e5e5;
+    }
+
+    .progress-item.active {
+      background: #f2a900;
+    }
+
+    .step-label {
+      padding: 10px 20px 0;
+      color: #555;
+      font-size: 15px;
+    }
+
+    .content {
+      padding: 20px;
+    }
+
+    .step {
+      display: none;
+    }
+
+    .step.active {
+      display: block;
+    }
+
+    .question-title {
+      font-size: 22px;
+      font-weight: bold;
+      margin: 0 0 18px;
+      line-height: 1.4;
+    }
+
+    label {
+      display: block;
+      margin-top: 22px;
+      margin-bottom: 8px;
+      font-weight: bold;
+      font-size: 18px;
+    }
+
+    input,
+    textarea,
+    select,
+    button {
+      font-size: 20px;
+    }
+
+    input,
+    textarea {
+      width: 100%;
+      padding: 16px 15px;
+      min-height: 64px;
+      border: 1px solid #ccc;
+      border-radius: 14px;
+      font-family: Arial, "Noto Sans TC", sans-serif;
+      background: #fff;
+    }
+
+    textarea {
+      min-height: 210px;
+      resize: vertical;
+      line-height: 1.6;
+    }
+
+    input[type="date"],
+    input[type="time"] {
+      text-align: left;
+      direction: ltr;
+      -webkit-appearance: none;
+      appearance: none;
+    }
+
+    input:focus,
+    textarea:focus {
+      outline: none;
+      border-color: #f2a900;
+      box-shadow: 0 0 0 3px rgba(242,169,0,0.18);
+    }
+
+    .hint {
+      font-size: 14px;
+      color: #777;
+      margin-top: 6px;
+      text-align: right;
+    }
+
+    .field-note {
+      color: #777;
+      font-size: 14px;
+      margin-top: 12px;
+      line-height: 1.6;
+      background: #fff8e6;
+      border-left: 5px solid #f2a900;
+      border-radius: 8px;
+      padding: 12px;
+    }
+
+    .nav-buttons {
+      display: flex;
+      gap: 12px;
+      margin-top: 28px;
+      position: sticky;
+      bottom: 0;
+      background: white;
+      padding-top: 12px;
+      padding-bottom: 4px;
+      z-index: 5;
+    }
+
+    button,
+    .download-link {
+      width: 100%;
+      padding: 16px;
+      border: none;
+      border-radius: 14px;
+      font-size: 19px;
+      font-weight: bold;
+      cursor: pointer;
+      text-align: center;
+      text-decoration: none;
+      font-family: Arial, "Noto Sans TC", sans-serif;
+    }
+
+    .primary-button {
+      background: #f2a900;
+      color: white;
+    }
+
+    .primary-button:hover {
+      background: #d99600;
+    }
+
+    .secondary-button {
+      background: #eeeeee;
+      color: #333;
+    }
+
+    .secondary-button:hover {
+      background: #dddddd;
+    }
+
+    .dark-button {
+      background: #333;
+      color: white;
+    }
+
+    .dark-button:hover {
+      background: #111;
+    }
+
+    .reset-button {
+      background: #777;
+      color: white;
+    }
+
+    .reset-button:hover {
+      background: #555;
+    }
+
+    button:disabled {
+      background: #bbb;
+      cursor: not-allowed;
+    }
+
+    .upload-card {
+      margin-top: 18px;
+      padding: 18px;
+      border: 2px dashed #d6d6d6;
+      border-radius: 16px;
+      background: #fafafa;
+    }
+
+    .upload-title {
+      font-weight: bold;
+      font-size: 18px;
+      margin-bottom: 10px;
+    }
+
+    .upload-card input {
+      border: none;
+      background: transparent;
+      padding-left: 0;
+      padding-right: 0;
+    }
+
+    .thumb {
+      display: none;
+      width: 100%;
+      max-height: 260px;
+      object-fit: contain;
+      margin-top: 14px;
+      border-radius: 12px;
+      border: 1px solid #ddd;
+      background: white;
+    }
+
+    #status {
+      margin-top: 18px;
+      padding: 14px;
+      display: none;
+      background: #fff8e6;
+      border-left: 5px solid #f2a900;
+      border-radius: 8px;
+      color: #333;
+      line-height: 1.6;
+      font-size: 16px;
+    }
+
+    #resultArea {
+      display: none;
+      margin-top: 20px;
+    }
+
+    #resultArea h3 {
+      font-size: 22px;
+      margin-bottom: 8px;
+    }
+
+    .result-note {
+      color: #666;
+      font-size: 15px;
+      line-height: 1.6;
+      margin-bottom: 14px;
+    }
+
+    #finalImage {
+      width: 100%;
+      max-width: 1280px;
+      border: 1px solid #ddd;
+      border-radius: 12px;
+      background: white;
+      display: block;
+    }
+
+    .image-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .download-link {
+      display: none;
+      background: #eeeeee;
+      color: #333;
+    }
+
+    .download-link:hover {
+      background: #dddddd;
+    }
+
+    .export-source-area {
+      position: fixed;
+      left: -99999px;
+      top: 0;
+      width: 1280px;
+      height: 720px;
+      overflow: hidden;
+      background: white;
+    }
+
+    .export-card {
+      width: 1280px;
+      height: 720px;
+      background: white;
+      display: flex;
+      padding: 50px;
+      gap: 40px;
+    }
+
+    .export-left {
+      width: 48%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .export-right {
+      width: 52%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .export-info {
+      font-size: 23px;
+      line-height: 1.45;
+      margin-bottom: 18px;
+      white-space: pre-line;
+      word-break: break-word;
+    }
+
+    .export-record {
+      font-size: 26px;
+      line-height: 1.5;
+      margin-bottom: 20px;
+    }
+
+    .export-food-img {
+      width: 100%;
+      height: 240px;
+      object-fit: cover;
+      border-radius: 6px;
+      margin-top: auto;
+    }
+
+    .export-chart-img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      border-radius: 6px;
+    }
+
+    .summary-box {
+      background: #f8f8f8;
+      border-radius: 14px;
+      padding: 16px;
+      margin-top: 16px;
+      line-height: 1.7;
+      font-size: 16px;
+    }
+
+    .summary-box strong {
+      color: #333;
+    }
+
+    @media (max-width: 480px) {
+      body {
+        padding: 8px;
+      }
+
+      .app {
+        border-radius: 14px;
+      }
+
+      .header {
+        padding: 20px 16px 12px;
+      }
+
+      .content {
+        padding: 18px 16px;
+      }
+
+      h2 {
+        font-size: 24px;
+      }
+
+      .question-title {
+        font-size: 21px;
+      }
+
+      input,
+      textarea {
+        font-size: 20px;
+        min-height: 66px;
+      }
+
+      textarea {
+        min-height: 220px;
+      }
+
+      button,
+      .download-link {
+        font-size: 19px;
+        min-height: 58px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="app">
+    <div class="header">
+      <h2>血糖紀錄圖片產生器</h2>
+      <div class="description">
+        分步驟填寫資料，上傳照片後直接產生一張 16:9 高解析圖片。
+      </div>
+    </div>
+
+    <div class="progress">
+      <div class="progress-item active" id="progress1"></div>
+      <div class="progress-item" id="progress2"></div>
+      <div class="progress-item" id="progress3"></div>
+      <div class="progress-item" id="progress4"></div>
+    </div>
+
+    <div class="step-label" id="stepLabel">第 1 步 / 共 4 步：基本資料</div>
+
+    <div class="content">
+      <div class="step active" id="step1">
+        <div class="question-title">先記錄這次吃了什麼</div>
+
+        <label>日期</label>
+        <input id="date" type="date">
+
+        <label>食物</label>
+        <input id="food" placeholder="例如：御飯團 2 顆">
+
+        <label>進食時間</label>
+        <input id="mealTime" type="time">
+
+        <label>感受</label>
+        <textarea
+          id="feeling"
+          maxlength="1000"
+          placeholder="例如：吃完後是否有飽足感、想睡、口渴、精神變好或變差等"
+          oninput="updateFeelingCount()"
+        ></textarea>
+        <div class="hint">
+          <span id="feelingCount">0</span> / 1000 字
+        </div>
+
+        <div class="nav-buttons">
+          <button class="primary-button" onclick="nextStep()">下一步</button>
+        </div>
+      </div>
+
+      <div class="step" id="step2">
+        <div class="question-title">輸入血糖數據</div>
+
+        <label>飯前 30 分時間</label>
+        <input id="beforeTime" type="time">
+
+        <label>飯前 30 分血糖</label>
+        <input id="beforeSugar" type="number" inputmode="numeric" placeholder="例如：133">
+
+        <label>進食當下血糖</label>
+        <input id="mealSugar" type="number" inputmode="numeric" placeholder="例如：110">
+
+        <label>最高峰時間</label>
+        <input id="peakTime" type="time">
+
+        <label>最高峰血糖</label>
+        <input id="peakSugar" type="number" inputmode="numeric" placeholder="例如：204">
+
+        <label>飯後 3 小時時間</label>
+        <input id="afterTime" type="time">
+
+        <label>飯後 3 小時血糖</label>
+        <input id="afterSugar" type="number" inputmode="numeric" placeholder="例如：114">
+
+        <div class="nav-buttons">
+          <button class="secondary-button" onclick="prevStep()">上一步</button>
+          <button class="primary-button" onclick="nextStep()">下一步</button>
+        </div>
+      </div>
+
+      <div class="step" id="step3">
+        <div class="question-title">上傳兩張圖片</div>
+
+        <div class="upload-card">
+          <div class="upload-title">上傳食物照片</div>
+          <input
+            type="file"
+            id="foodImage"
+            accept=".jpg,.jpeg,.png,.webp"
+            onchange="previewImage('foodImage', 'foodThumb')"
+          >
+          <img id="foodThumb" class="thumb">
+        </div>
+
+        <div class="upload-card">
+          <div class="upload-title">上傳血糖波動圖片</div>
+          <input
+            type="file"
+            id="chartImage"
+            accept=".jpg,.jpeg,.png,.webp"
+            onchange="previewImage('chartImage', 'chartThumb')"
+          >
+          <img id="chartThumb" class="thumb">
+        </div>
+
+        <div class="field-note">
+          建議先使用手機相機拍好照片，再從相簿選取上傳。請不要直接選「拍照」，避免相機黑畫面。
+        </div>
+
+        <div class="nav-buttons">
+          <button class="secondary-button" onclick="prevStep()">上一步</button>
+          <button class="primary-button" onclick="nextStep()">下一步</button>
+        </div>
+      </div>
+
+      <div class="step" id="step4">
+        <div class="question-title">確認後產生圖片</div>
+
+        <div class="summary-box" id="summaryBox"></div>
+
+        <button id="generateButton" class="primary-button" onclick="generateAndExportImage()">送出並產生圖片</button>
+
+        <div id="status"></div>
+
+        <div id="resultArea">
+          <h3>圖片已產生</h3>
+          <p class="result-note">
+            手機建議按「分享 / 儲存圖片」，再從系統選單選擇儲存圖片。若瀏覽器不支援，系統會顯示備用下載按鈕。
+          </p>
+
+          <img id="finalImage" src="">
+
+          <div class="image-actions">
+            <button class="dark-button" onclick="shareImage()">分享 / 儲存圖片</button>
+            <a id="downloadLink" class="download-link" href="#" download="血糖紀錄.png">備用下載圖片</a>
+            <button class="reset-button" onclick="resetAll()">重新填寫</button>
+          </div>
+        </div>
+
+        <div class="nav-buttons">
+          <button class="secondary-button" onclick="prevStep()">上一步修改</button>
+        </div>
+      </div>
+
+      <div id="exportSourceArea" class="export-source-area"></div>
+    </div>
+  </div>
+
+  <script>
+    let currentStep = 1;
+    let latestImageBlob = null;
+    let latestFileName = '血糖紀錄.png';
+
+    const stepLabels = {
+      1: '第 1 步 / 共 4 步：基本資料',
+      2: '第 2 步 / 共 4 步：血糖數據',
+      3: '第 3 步 / 共 4 步：圖片上傳',
+      4: '第 4 步 / 共 4 步：產生圖片'
+    };
+
+    function blurActiveElement() {
+      if (document.activeElement) {
+        document.activeElement.blur();
+      }
+    }
+
+    function clearGeneratedResult() {
+      document.getElementById('resultArea').style.display = 'none';
+      document.getElementById('finalImage').src = '';
+      document.getElementById('downloadLink').href = '#';
+      document.getElementById('downloadLink').style.display = 'none';
+      document.getElementById('exportSourceArea').innerHTML = '';
+
+      latestImageBlob = null;
+      latestFileName = '血糖紀錄.png';
+
+      setStatus('', false);
+    }
+
+    function updateFeelingCount() {
+      const feeling = document.getElementById('feeling').value;
+      document.getElementById('feelingCount').innerText = feeling.length;
+    }
+
+    function showStep(step) {
+      blurActiveElement();
+
+      currentStep = step;
+
+      document.querySelectorAll('.step').forEach(el => {
+        el.classList.remove('active');
+      });
+
+      document.getElementById(`step${step}`).classList.add('active');
+      document.getElementById('stepLabel').innerText = stepLabels[step];
+
+      for (let i = 1; i <= 4; i++) {
+        const progress = document.getElementById(`progress${i}`);
+        if (i <= step) {
+          progress.classList.add('active');
+        } else {
+          progress.classList.remove('active');
+        }
+      }
+
+      if (step === 4) {
+        renderSummary();
+      }
+
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+    }
+
+    function nextStep() {
+      blurActiveElement();
+
+      if (currentStep === 3) {
+        const foodFile = document.getElementById('foodImage').files[0];
+        const chartFile = document.getElementById('chartImage').files[0];
+
+        if (!foodFile || !chartFile) {
+          alert('請先上傳食物照片與血糖波動圖片');
+          return;
+        }
+      }
+
+      if (currentStep < 4) {
+        showStep(currentStep + 1);
+      }
+    }
+
+    function prevStep() {
+      blurActiveElement();
+
+      if (currentStep === 4) {
+        clearGeneratedResult();
+      }
+
+      if (currentStep > 1) {
+        showStep(currentStep - 1);
+      }
+    }
+
+    function renderSummary() {
+      const data = getFormData(false);
+
+      document.getElementById('summaryBox').innerHTML = `
+        <strong>日期：</strong>${escapeHtml(data.date || '未填')}<br>
+        <strong>食物：</strong>${escapeHtml(data.food || '未填')}<br>
+        <strong>進食時間：</strong>${escapeHtml(data.mealTime || '未填')}<br>
+        <strong>最高峰：</strong>${escapeHtml(data.peakSugar || '未填')} mg/dL<br>
+        <strong>飯後 3 小時：</strong>${escapeHtml(data.afterSugar || '未填')} mg/dL
+      `;
+    }
+
+    function setStatus(message, isVisible = true) {
+      const status = document.getElementById('status');
+      status.innerText = message;
+      status.style.display = isVisible ? 'block' : 'none';
+    }
+
+    function setGenerating(isGenerating) {
+      const button = document.getElementById('generateButton');
+
+      if (isGenerating) {
+        button.disabled = true;
+        button.innerText = '圖片產生中...';
+      } else {
+        button.disabled = false;
+        button.innerText = '送出並產生圖片';
+      }
+    }
+
+    function readFileAsDataURL(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+
+        reader.onload = e => resolve(e.target.result);
+        reader.onerror = reject;
+
+        reader.readAsDataURL(file);
+      });
+    }
+
+    async function previewImage(inputId, imgId) {
+      const file = document.getElementById(inputId).files[0];
+      const img = document.getElementById(imgId);
+
+      if (!file) {
+        img.style.display = 'none';
+        img.src = '';
+        return;
+      }
+
+      const dataUrl = await readFileAsDataURL(file);
+      img.src = dataUrl;
+      img.style.display = 'block';
+    }
+
+    function escapeHtml(text) {
+      return String(text || '')
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    function getShortFeeling(text, maxLength) {
+      if (!text) return '';
+
+      if (text.length <= maxLength) {
+        return text;
+      }
+
+      return text.substring(0, maxLength) + '...';
+    }
+
+    function getFormData(includeImages) {
+      return {
+        date: document.getElementById('date').value,
+        food: document.getElementById('food').value,
+        mealTime: document.getElementById('mealTime').value,
+        feeling: getShortFeeling(document.getElementById('feeling').value, 120),
+        beforeSugar: document.getElementById('beforeSugar').value,
+        beforeTime: document.getElementById('beforeTime').value,
+        mealSugar: document.getElementById('mealSugar').value,
+        peakSugar: document.getElementById('peakSugar').value,
+        peakTime: document.getElementById('peakTime').value,
+        afterSugar: document.getElementById('afterSugar').value,
+        afterTime: document.getElementById('afterTime').value,
+        foodImg: includeImages ? document.getElementById('foodThumb').src : '',
+        chartImg: includeImages ? document.getElementById('chartThumb').src : ''
+      };
+    }
+
+    function buildExportHtml(data) {
+      return `
+        <div id="exportCard" class="export-card">
+          <div class="export-left">
+            <div class="export-info">
+日期：${escapeHtml(data.date)}
+食物：${escapeHtml(data.food)}
+進食時間：${escapeHtml(data.mealTime)}
+感受：${escapeHtml(data.feeling)}
+            </div>
+
+            <div class="export-record">
+              血糖紀錄：<br>
+              飯前 30 分 (${escapeHtml(data.beforeTime)})：${escapeHtml(data.beforeSugar)} mg/dL<br>
+              進食當下 (${escapeHtml(data.mealTime)})：${escapeHtml(data.mealSugar)} mg/dL<br>
+              📈 最高峰 (${escapeHtml(data.peakTime)})：${escapeHtml(data.peakSugar)} mg/dL<br>
+              飯後 3 小時 (${escapeHtml(data.afterTime)})：${escapeHtml(data.afterSugar)} mg/dL
+            </div>
+
+            <img class="export-food-img" src="${data.foodImg}">
+          </div>
+
+          <div class="export-right">
+            <img class="export-chart-img" src="${data.chartImg}">
+          </div>
+        </div>
+      `;
+    }
+
+    async function waitForImagesLoaded(container) {
+      const images = Array.from(container.querySelectorAll('img'));
+
+      await Promise.all(images.map(img => {
+        if (img.complete) {
+          return Promise.resolve();
+        }
+
+        return new Promise(resolve => {
+          img.onload = resolve;
+          img.onerror = resolve;
+        });
+      }));
+    }
+
+    async function generateAndExportImage() {
+      try {
+        blurActiveElement();
+
+        const foodFile = document.getElementById('foodImage').files[0];
+        const chartFile = document.getElementById('chartImage').files[0];
+
+        if (!foodFile || !chartFile) {
+          alert('請上傳食物照片與血糖波動圖片');
+          showStep(3);
+          return;
+        }
+
+        setGenerating(true);
+        setStatus('圖片產生中，請稍候...手機圖片較大時可能需要幾秒。');
+        document.getElementById('resultArea').style.display = 'none';
+        document.getElementById('downloadLink').style.display = 'none';
+
+        const data = getFormData(true);
+
+        const exportSourceArea = document.getElementById('exportSourceArea');
+        exportSourceArea.innerHTML = buildExportHtml(data);
+
+        const exportCard = document.getElementById('exportCard');
+
+        await waitForImagesLoaded(exportCard);
+
+        const canvas = await html2canvas(exportCard, {
+          scale: 2,
+          useCORS: true,
+          backgroundColor: '#ffffff',
+          width: 1280,
+          height: 720
+        });
+
+        const imageData = canvas.toDataURL('image/png');
+
+        const finalImage = document.getElementById('finalImage');
+        const downloadLink = document.getElementById('downloadLink');
+
+        finalImage.src = imageData;
+        downloadLink.href = imageData;
+
+        const now = new Date();
+        const fileName = `血糖紀錄_${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}${String(now.getDate()).padStart(2, '0')}.png`;
+
+        latestFileName = fileName;
+        downloadLink.download = fileName;
+
+        latestImageBlob = await new Promise(resolve => {
+          canvas.toBlob(blob => resolve(blob), 'image/png');
+        });
+
+        document.getElementById('resultArea').style.display = 'block';
+        setStatus('圖片產生完成。手機可按「分享 / 儲存圖片」，再選擇儲存圖片。');
+
+        document.getElementById('resultArea').scrollIntoView({
+          behavior: 'smooth',
+          block: 'start'
+        });
+
+      } catch (error) {
+        console.error(error);
+        alert('產生圖片時發生錯誤，請確認圖片是否過大，或重新整理後再試一次。');
+        setStatus('產生圖片失敗，請重新嘗試。');
+      } finally {
+        setGenerating(false);
+      }
+    }
+
+    async function shareImage() {
+      if (!latestImageBlob) {
+        alert('請先產生圖片');
+        return;
+      }
+
+      const file = new File([latestImageBlob], latestFileName, {
+        type: 'image/png'
+      });
+
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        try {
+          await navigator.share({
+            files: [file],
+            title: '血糖紀錄',
+            text: '我的血糖紀錄圖片'
+          });
+        } catch (error) {
+          console.log('使用者取消分享或分享失敗', error);
+        }
+      } else {
+        document.getElementById('downloadLink').style.display = 'block';
+        alert('這個瀏覽器不支援直接分享圖片，已顯示「備用下載圖片」。');
+      }
+    }
+
+    function resetAll() {
+      blurActiveElement();
+
+      document.querySelectorAll('input').forEach(input => {
+        input.value = '';
+      });
+
+      document.querySelectorAll('textarea').forEach(textarea => {
+        textarea.value = '';
+      });
+
+      document.getElementById('feelingCount').innerText = '0';
+
+      document.getElementById('foodThumb').src = '';
+      document.getElementById('foodThumb').style.display = 'none';
+
+      document.getElementById('chartThumb').src = '';
+      document.getElementById('chartThumb').style.display = 'none';
+
+      clearGeneratedResult();
+
+      showStep(1);
+    }
+  </script>
+</body>
+</html>
