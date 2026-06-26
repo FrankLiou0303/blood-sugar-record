@@ -279,18 +279,6 @@
       margin-top: 20px;
     }
 
-    #resultArea h3 {
-      font-size: 22px;
-      margin-bottom: 8px;
-    }
-
-    .result-note {
-      color: #666;
-      font-size: 15px;
-      line-height: 1.6;
-      margin-bottom: 14px;
-    }
-
     #finalImage {
       width: 100%;
       max-width: 1280px;
@@ -322,62 +310,74 @@
       left: -99999px;
       top: 0;
       width: 1280px;
-      height: 720px;
-      overflow: hidden;
+      min-height: 720px;
+      overflow: visible;
       background: white;
     }
 
     .export-card {
       width: 1280px;
-      height: 720px;
+      min-height: 720px;
       background: white;
       display: flex;
+      align-items: flex-start;
       padding: 50px;
       gap: 40px;
     }
 
     .export-left {
       width: 48%;
-      height: 100%;
       display: flex;
       flex-direction: column;
+      gap: 22px;
     }
 
     .export-right {
       width: 52%;
-      height: 100%;
       display: flex;
-      align-items: center;
-      justify-content: center;
+      flex-direction: column;
+      gap: 22px;
     }
 
     .export-info {
-      font-size: 23px;
-      line-height: 1.45;
-      margin-bottom: 18px;
+      font-size: 24px;
+      line-height: 1.55;
       white-space: pre-line;
       word-break: break-word;
+      background: #fff8e6;
+      border-left: 8px solid #f2a900;
+      border-radius: 12px;
+      padding: 22px;
     }
 
     .export-record {
-      font-size: 26px;
-      line-height: 1.5;
-      margin-bottom: 20px;
+      font-size: 27px;
+      line-height: 1.55;
+      background: #f8f8f8;
+      border-radius: 12px;
+      padding: 22px;
     }
 
     .export-food-img {
       width: 100%;
-      height: 240px;
-      object-fit: cover;
-      border-radius: 6px;
-      margin-top: auto;
+      height: auto;
+      max-height: none;
+      object-fit: contain;
+      border-radius: 14px;
+      background: #f5f5f5;
+      border: 1px solid #eeeeee;
+      display: block;
     }
 
     .export-chart-img {
       width: 100%;
-      height: 100%;
+      height: auto;
+      max-height: none;
       object-fit: contain;
-      border-radius: 6px;
+      border-radius: 14px;
+      background: #f5f5f5;
+      border: 1px solid #eeeeee;
+      display: block;
     }
 
     .summary-box {
@@ -442,7 +442,7 @@
     <div class="header">
       <h2>血糖紀錄圖片產生器</h2>
       <div class="description">
-        分步驟填寫資料，上傳照片後直接產生一張 16:9 高解析圖片。
+        分步驟填寫資料，上傳照片後直接產生紀錄圖片。
       </div>
     </div>
 
@@ -559,11 +559,6 @@
         <div id="status"></div>
 
         <div id="resultArea">
-          <h3>圖片已產生</h3>
-          <p class="result-note">
-            手機建議按「分享 / 儲存圖片」，再從系統選單選擇儲存圖片。若瀏覽器不支援，系統會顯示備用下載按鈕。
-          </p>
-
           <img id="finalImage" src="">
 
           <div class="image-actions">
@@ -777,18 +772,17 @@
         <div id="exportCard" class="export-card">
           <div class="export-left">
             <div class="export-info">
-日期：${escapeHtml(data.date)}
-食物：${escapeHtml(data.food)}
-進食時間：${escapeHtml(data.mealTime)}
-感受：${escapeHtml(data.feeling)}
+日期：${escapeHtml(data.date || '未填')}
+食物：${escapeHtml(data.food || '未填')}
+進食時間：${escapeHtml(data.mealTime || '未填')}
+感受：${escapeHtml(data.feeling || '未填')}
             </div>
 
             <div class="export-record">
-              血糖紀錄：<br>
-              飯前 30 分 (${escapeHtml(data.beforeTime)})：${escapeHtml(data.beforeSugar)} mg/dL<br>
-              進食當下 (${escapeHtml(data.mealTime)})：${escapeHtml(data.mealSugar)} mg/dL<br>
-              📈 最高峰 (${escapeHtml(data.peakTime)})：${escapeHtml(data.peakSugar)} mg/dL<br>
-              飯後 3 小時 (${escapeHtml(data.afterTime)})：${escapeHtml(data.afterSugar)} mg/dL
+              飯前 30 分 (${escapeHtml(data.beforeTime || '未填')})：${escapeHtml(data.beforeSugar || '未填')} mg/dL<br>
+              進食當下 (${escapeHtml(data.mealTime || '未填')})：${escapeHtml(data.mealSugar || '未填')} mg/dL<br>
+              📈 最高峰 (${escapeHtml(data.peakTime || '未填')})：${escapeHtml(data.peakSugar || '未填')} mg/dL<br>
+              飯後 3 小時 (${escapeHtml(data.afterTime || '未填')})：${escapeHtml(data.afterSugar || '未填')} mg/dL
             </div>
 
             <img class="export-food-img" src="${data.foodImg}">
@@ -805,7 +799,7 @@
       const images = Array.from(container.querySelectorAll('img'));
 
       await Promise.all(images.map(img => {
-        if (img.complete) {
+        if (img.complete && img.naturalWidth > 0) {
           return Promise.resolve();
         }
 
@@ -847,8 +841,10 @@
           scale: 2,
           useCORS: true,
           backgroundColor: '#ffffff',
-          width: 1280,
-          height: 720
+          width: exportCard.scrollWidth,
+          height: exportCard.scrollHeight,
+          windowWidth: exportCard.scrollWidth,
+          windowHeight: exportCard.scrollHeight
         });
 
         const imageData = canvas.toDataURL('image/png');
@@ -870,7 +866,7 @@
         });
 
         document.getElementById('resultArea').style.display = 'block';
-        setStatus('圖片產生完成。手機可按「分享 / 儲存圖片」，再選擇儲存圖片。');
+        setStatus('', false);
 
         document.getElementById('resultArea').scrollIntoView({
           behavior: 'smooth',
