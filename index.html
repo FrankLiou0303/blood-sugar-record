@@ -20,7 +20,7 @@
     }
 
     body {
-      font-family: Arial, "Noto Sans TC", sans-serif;
+      font-family: Arial, "Noto Sans TC", "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji", sans-serif;
       background: #f5f5f5;
       padding: 12px;
       margin: 0;
@@ -111,6 +111,7 @@
     select,
     button {
       font-size: 20px;
+      font-family: Arial, "Noto Sans TC", "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji", sans-serif;
     }
 
     input,
@@ -120,14 +121,7 @@
       min-height: 64px;
       border: 1px solid #ccc;
       border-radius: 14px;
-      font-family: Arial, "Noto Sans TC", sans-serif;
       background: #fff;
-    }
-
-    textarea {
-      min-height: 210px;
-      resize: vertical;
-      line-height: 1.6;
     }
 
     input[type="date"],
@@ -145,11 +139,18 @@
       box-shadow: 0 0 0 3px rgba(242,169,0,0.18);
     }
 
-    .hint {
-      font-size: 14px;
-      color: #777;
-      margin-top: 6px;
-      text-align: right;
+    input[type="checkbox"],
+    input[type="radio"] {
+      width: 24px;
+      height: 24px;
+      min-height: auto;
+      padding: 0;
+      margin: 0;
+      border: none;
+      border-radius: 0;
+      box-shadow: none;
+      accent-color: #f2a900;
+      flex: 0 0 24px;
     }
 
     .field-note {
@@ -161,6 +162,45 @@
       border-left: 5px solid #f2a900;
       border-radius: 8px;
       padding: 12px;
+    }
+
+    .option-group {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 10px;
+    }
+
+    .option-card {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 0;
+      padding: 14px 16px;
+      border: 1px solid #e4e4e4;
+      border-radius: 14px;
+      background: #fafafa;
+      font-weight: normal;
+      cursor: pointer;
+    }
+
+    .option-card span {
+      font-size: 18px;
+      line-height: 1.5;
+    }
+
+    .other-wrapper {
+      display: none;
+      margin-top: -2px;
+      margin-left: 0;
+    }
+
+    .other-wrapper.show {
+      display: block;
+    }
+
+    .other-input {
+      min-height: 58px;
     }
 
     .nav-buttons {
@@ -186,7 +226,6 @@
       cursor: pointer;
       text-align: center;
       text-decoration: none;
-      font-family: Arial, "Noto Sans TC", sans-serif;
     }
 
     .primary-button {
@@ -244,11 +283,12 @@
       margin-bottom: 10px;
     }
 
-    .upload-card input {
+    .upload-card input[type="file"] {
       border: none;
       background: transparent;
       padding-left: 0;
       padding-right: 0;
+      min-height: auto;
     }
 
     .thumb {
@@ -337,6 +377,15 @@
       display: flex;
       flex-direction: column;
       gap: 22px;
+      padding-top: 91px;
+    }
+
+    .export-title {
+      font-size: 50px;
+      line-height: 1.3;
+      font-weight: bold;
+      color: #2f6b3f;
+      margin-bottom: 4px;
     }
 
     .export-info {
@@ -358,17 +407,7 @@
       padding: 22px;
     }
 
-    .export-food-img {
-      width: 100%;
-      height: auto;
-      max-height: none;
-      object-fit: contain;
-      border-radius: 14px;
-      background: #f5f5f5;
-      border: 1px solid #eeeeee;
-      display: block;
-    }
-
+    .export-food-img,
     .export-chart-img {
       width: 100%;
       height: auto;
@@ -424,10 +463,6 @@
         min-height: 66px;
       }
 
-      textarea {
-        min-height: 220px;
-      }
-
       button,
       .download-link {
         font-size: 19px;
@@ -468,15 +503,39 @@
         <label>進食時間</label>
         <input id="mealTime" type="time">
 
-        <label>感受</label>
-        <textarea
-          id="feeling"
-          maxlength="1000"
-          placeholder="例如：吃完後是否有飽足感、想睡、口渴、精神變好或變差等"
-          oninput="updateFeelingCount()"
-        ></textarea>
-        <div class="hint">
-          <span id="feelingCount">0</span> / 1000 字
+        <label>🥗 進食順序（單選）</label>
+        <div class="option-group">
+          <label class="option-card"><input type="radio" name="mealOrder" value="沒特別注意" onchange="toggleMealOrderOther()"><span>沒特別注意</span></label>
+          <label class="option-card"><input type="radio" name="mealOrder" value="菜 → 蛋白質 → 澱粉（建議順序）" onchange="toggleMealOrderOther()"><span>菜 → 蛋白質 → 澱粉（建議順序）</span></label>
+          <label class="option-card"><input type="radio" id="mealOrderOtherRadio" name="mealOrder" value="其他" onchange="toggleMealOrderOther()"><span>其他</span></label>
+          <div id="mealOrderOtherWrapper" class="other-wrapper">
+            <input id="mealOrderOtherText" class="other-input" placeholder="請輸入其他進食順序" oninput="syncMealOrderOther()">
+          </div>
+        </div>
+
+        <label>💊 本餐搭配（可複選）</label>
+        <div class="option-group">
+          <label class="option-card"><input type="checkbox" id="mealPairingNone" name="mealPairingOption" value="無" onchange="toggleMealPairingNone()"><span>無</span></label>
+          <label class="option-card"><input type="checkbox" name="mealPairingOption" value="蘅怡飲1條" onchange="handleMealPairingOptionChange()"><span>蘅怡飲1條</span></label>
+          <label class="option-card"><input type="checkbox" name="mealPairingOption" value="纖維嚼片2片" onchange="handleMealPairingOptionChange()"><span>纖維嚼片2片</span></label>
+          <label class="option-card"><input type="checkbox" name="mealPairingOption" value="纖巧錠3顆" onchange="handleMealPairingOptionChange()"><span>纖巧錠3顆</span></label>
+          <label class="option-card"><input type="checkbox" id="mealPairingOtherCheck" onchange="toggleMealPairingOther()"><span>其他</span></label>
+          <div id="mealPairingOtherWrapper" class="other-wrapper">
+            <input id="mealPairingOtherText" class="other-input" placeholder="請輸入其他本餐搭配" oninput="syncOtherCheckbox('mealPairingOtherCheck', 'mealPairingOtherText', 'mealPairingOtherWrapper')">
+          </div>
+        </div>
+
+        <label>😊 餐後感受（可複選）</label>
+        <div class="option-group">
+          <label class="option-card"><input type="checkbox" name="feelingOption" value="😊 精神好"><span>😊 精神好</span></label>
+          <label class="option-card"><input type="checkbox" name="feelingOption" value="😴 想睡"><span>😴 想睡</span></label>
+          <label class="option-card"><input type="checkbox" name="feelingOption" value="😋 容易餓"><span>😋 容易餓</span></label>
+          <label class="option-card"><input type="checkbox" name="feelingOption" value="😵 不舒服（如頭暈、心悸等）"><span>😵 不舒服（如頭暈、心悸等）</span></label>
+          <label class="option-card"><input type="checkbox" name="feelingOption" value="🙂 沒特別感覺"><span>🙂 沒特別感覺</span></label>
+          <div>
+            <label>其他</label>
+            <input id="feelingOtherText" class="other-input" placeholder="請輸入其他餐後感受">
+          </div>
         </div>
 
         <div class="nav-buttons">
@@ -486,9 +545,6 @@
 
       <div class="step" id="step2">
         <div class="question-title">輸入血糖數據</div>
-
-        <label>飯前 30 分血糖</label>
-        <input id="beforeSugar" type="number" inputmode="numeric" placeholder="例如：133">
 
         <label>進食當下血糖</label>
         <input id="mealSugar" type="number" inputmode="numeric" placeholder="例如：110">
@@ -602,14 +658,99 @@
       setStatus('', false);
     }
 
-    function updateFeelingCount() {
-      const feeling = document.getElementById('feeling').value;
-      document.getElementById('feelingCount').innerText = feeling.length;
+    function toggleOtherInput(checkboxId, wrapperId) {
+      const checkbox = document.getElementById(checkboxId);
+      const wrapper = document.getElementById(wrapperId);
+      const input = wrapper.querySelector('input');
+
+      if (checkbox.checked) {
+        wrapper.classList.add('show');
+      } else {
+        wrapper.classList.remove('show');
+        if (input) {
+          input.value = '';
+        }
+      }
+    }
+
+    function syncOtherCheckbox(checkboxId, inputId, wrapperId) {
+      const checkbox = document.getElementById(checkboxId);
+      const input = document.getElementById(inputId);
+      const wrapper = document.getElementById(wrapperId);
+
+      if (checkboxId === 'mealPairingOtherCheck') {
+        handleMealPairingOptionChange();
+      }
+
+      if (input.value.trim() !== '') {
+        checkbox.checked = true;
+        wrapper.classList.add('show');
+      }
+    }
+
+    function toggleMealPairingNone() {
+      const noneCheck = document.getElementById('mealPairingNone');
+      const normalOptions = document.querySelectorAll('input[name="mealPairingOption"]:not(#mealPairingNone)');
+      const otherCheck = document.getElementById('mealPairingOtherCheck');
+      const otherWrapper = document.getElementById('mealPairingOtherWrapper');
+      const otherText = document.getElementById('mealPairingOtherText');
+
+      if (noneCheck.checked) {
+        normalOptions.forEach(option => {
+          option.checked = false;
+          option.disabled = true;
+        });
+        otherCheck.checked = false;
+        otherCheck.disabled = true;
+        otherText.value = '';
+        otherWrapper.classList.remove('show');
+      } else {
+        normalOptions.forEach(option => {
+          option.disabled = false;
+        });
+        otherCheck.disabled = false;
+      }
+    }
+
+    function handleMealPairingOptionChange() {
+      const noneCheck = document.getElementById('mealPairingNone');
+      if (noneCheck.checked) {
+        noneCheck.checked = false;
+      }
+      toggleMealPairingNone();
+    }
+
+    function toggleMealPairingOther() {
+      handleMealPairingOptionChange();
+      toggleOtherInput('mealPairingOtherCheck', 'mealPairingOtherWrapper');
+    }
+
+    function toggleMealOrderOther() {
+      const otherRadio = document.getElementById('mealOrderOtherRadio');
+      const wrapper = document.getElementById('mealOrderOtherWrapper');
+      const input = document.getElementById('mealOrderOtherText');
+
+      if (otherRadio.checked) {
+        wrapper.classList.add('show');
+      } else {
+        wrapper.classList.remove('show');
+        input.value = '';
+      }
+    }
+
+    function syncMealOrderOther() {
+      const input = document.getElementById('mealOrderOtherText');
+      const otherRadio = document.getElementById('mealOrderOtherRadio');
+      const wrapper = document.getElementById('mealOrderOtherWrapper');
+
+      if (input.value.trim() !== '') {
+        otherRadio.checked = true;
+        wrapper.classList.add('show');
+      }
     }
 
     function showStep(step) {
       blurActiveElement();
-
       currentStep = step;
 
       document.querySelectorAll('.step').forEach(el => {
@@ -668,13 +809,77 @@
       }
     }
 
+    function escapeHtml(text) {
+      return String(text || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    function getMealOrderText() {
+      const selected = document.querySelector('input[name="mealOrder"]:checked');
+      const otherText = document.getElementById('mealOrderOtherText').value.trim();
+
+      if (!selected) {
+        return '';
+      }
+
+      if (selected.value === '其他') {
+        return otherText ? otherText : '其他';
+      }
+
+      if (selected.value === '菜 → 蛋白質 → 澱粉（建議順序）') {
+        return '菜 → 蛋白質 → 澱粉';
+      }
+
+      return selected.value;
+    }
+
+    function getCheckedValues(name) {
+      const values = [];
+      document.querySelectorAll(`input[name="${name}"]:checked`).forEach(input => {
+        values.push(input.value);
+      });
+      return values;
+    }
+
+    function getMealPairingText() {
+      const selected = getCheckedValues('mealPairingOption');
+      const otherCheck = document.getElementById('mealPairingOtherCheck');
+      const otherText = document.getElementById('mealPairingOtherText').value.trim();
+
+      if (otherText) {
+        selected.push(otherText);
+      } else if (otherCheck.checked) {
+        selected.push('其他');
+      }
+
+      return selected.join('、');
+    }
+
+    function getFeelingText() {
+      const selected = getCheckedValues('feelingOption').map(value => value.replace(/^[^\u4E00-\u9FFFa-zA-Z0-9]+\s*/, ''));
+      const otherText = document.getElementById('feelingOtherText').value.trim();
+
+      if (otherText) {
+        selected.push(otherText);
+      }
+
+      return selected.join('、');
+    }
+
     function renderSummary() {
       const data = getFormData(false);
 
       document.getElementById('summaryBox').innerHTML = `
         <strong>日期：</strong>${escapeHtml(data.date || '未填')}<br>
         <strong>食物：</strong>${escapeHtml(data.food || '未填')}<br>
-        <strong>進食時間：</strong>${escapeHtml(data.mealTime || '未填')}<br>
+        <strong>開始吃（第一口）：</strong>${escapeHtml(data.mealTime || '未填')}<br>
+        <strong>進食順序：</strong>${escapeHtml(data.mealOrder || '未填')}<br>
+        <strong>本餐搭配：</strong>${escapeHtml(data.mealPairing || '未填')}<br>
+        <strong>餐後感受：</strong>${escapeHtml(data.feeling || '未填')}<br>
         <strong>最高峰：</strong>${escapeHtml(data.peakSugar || '未填')} mg/dL<br>
         <strong>飯後 3 小時：</strong>${escapeHtml(data.afterSugar || '未填')} mg/dL
       `;
@@ -701,10 +906,8 @@
     function readFileAsDataURL(file) {
       return new Promise((resolve, reject) => {
         const reader = new FileReader();
-
         reader.onload = e => resolve(e.target.result);
         reader.onerror = reject;
-
         reader.readAsDataURL(file);
       });
     }
@@ -724,25 +927,6 @@
       img.style.display = 'block';
     }
 
-    function escapeHtml(text) {
-      return String(text || '')
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
-    }
-
-    function getShortFeeling(text, maxLength) {
-      if (!text) return '';
-
-      if (text.length <= maxLength) {
-        return text;
-      }
-
-      return text.substring(0, maxLength) + '...';
-    }
-
     function addMinutesToTime(timeText, minutesToAdd) {
       if (!timeText) return '';
 
@@ -757,7 +941,6 @@
       const totalMinutesInDay = 24 * 60;
       const originalTotalMinutes = hour * 60 + minute;
       const calculatedTotalMinutes = (originalTotalMinutes + minutesToAdd + totalMinutesInDay) % totalMinutesInDay;
-
       const calculatedHour = Math.floor(calculatedTotalMinutes / 60);
       const calculatedMinute = calculatedTotalMinutes % 60;
 
@@ -769,9 +952,9 @@
         date: document.getElementById('date').value,
         food: document.getElementById('food').value,
         mealTime: document.getElementById('mealTime').value,
-        feeling: getShortFeeling(document.getElementById('feeling').value, 120),
-        beforeSugar: document.getElementById('beforeSugar').value,
-        beforeTime: addMinutesToTime(document.getElementById('mealTime').value, -30),
+        mealOrder: getMealOrderText(),
+        mealPairing: getMealPairingText(),
+        feeling: getFeelingText(),
         mealSugar: document.getElementById('mealSugar').value,
         peakSugar: document.getElementById('peakSugar').value,
         peakTime: document.getElementById('peakTime').value,
@@ -786,17 +969,18 @@
       return `
         <div id="exportCard" class="export-card">
           <div class="export-left">
-            <div class="export-info">日期：${escapeHtml(data.date || '未填')}
-食物：${escapeHtml(data.food || '未填')}
-進食時間：${escapeHtml(data.mealTime || '未填')}
-感受：${escapeHtml(data.feeling || '未填')}
-            </div>
+            <div class="export-title">🌿 CGM 測試紀錄</div>
+            <div class="export-info">📅 日期：${escapeHtml(data.date || '未填')}
+🍽️ 食物：${escapeHtml(data.food || '未填')}
+🕒 開始吃：${escapeHtml(data.mealTime || '未填')}
+🥗 進食順序：${escapeHtml(data.mealOrder || '未填')}
+💊 本餐搭配：${escapeHtml(data.mealPairing || '未填')}
+😊 餐後感受：${escapeHtml(data.feeling || '未填')}</div>
 
             <div class="export-record">
-              飯前 30 分 (${escapeHtml(data.beforeTime || '未填')})：${escapeHtml(data.beforeSugar || '未填')} mg/dL<br>
-              進食當下 (${escapeHtml(data.mealTime || '未填')})：${escapeHtml(data.mealSugar || '未填')} mg/dL<br>
+              🍴 進食當下 (${escapeHtml(data.mealTime || '未填')})：${escapeHtml(data.mealSugar || '未填')} mg/dL<br>
               📈 最高峰 (${escapeHtml(data.peakTime || '未填')})：${escapeHtml(data.peakSugar || '未填')} mg/dL<br>
-              飯後 3 小時 (${escapeHtml(data.afterTime || '未填')})：${escapeHtml(data.afterSugar || '未填')} mg/dL
+              🕒 飯後 3 小時 (${escapeHtml(data.afterTime || '未填')})：${escapeHtml(data.afterSugar || '未填')} mg/dL
             </div>
 
             <img class="export-food-img" src="${data.foodImg}">
@@ -843,12 +1027,10 @@
         document.getElementById('downloadLink').style.display = 'none';
 
         const data = getFormData(true);
-
         const exportSourceArea = document.getElementById('exportSourceArea');
         exportSourceArea.innerHTML = buildExportHtml(data);
 
         const exportCard = document.getElementById('exportCard');
-
         await waitForImagesLoaded(exportCard);
 
         const canvas = await html2canvas(exportCard, {
@@ -862,7 +1044,6 @@
         });
 
         const imageData = canvas.toDataURL('image/png');
-
         const finalImage = document.getElementById('finalImage');
         const downloadLink = document.getElementById('downloadLink');
 
@@ -886,7 +1067,6 @@
           behavior: 'smooth',
           block: 'start'
         });
-
       } catch (error) {
         console.error(error);
         alert('產生圖片時發生錯誤，請確認圖片是否過大，或重新整理後再試一次。');
@@ -926,23 +1106,23 @@
       blurActiveElement();
 
       document.querySelectorAll('input').forEach(input => {
-        input.value = '';
+        if (input.type === 'checkbox' || input.type === 'radio') {
+          input.checked = false;
+        } else {
+          input.value = '';
+        }
       });
 
-      document.querySelectorAll('textarea').forEach(textarea => {
-        textarea.value = '';
+      document.querySelectorAll('.other-wrapper').forEach(wrapper => {
+        wrapper.classList.remove('show');
       });
-
-      document.getElementById('feelingCount').innerText = '0';
 
       document.getElementById('foodThumb').src = '';
       document.getElementById('foodThumb').style.display = 'none';
-
       document.getElementById('chartThumb').src = '';
       document.getElementById('chartThumb').style.display = 'none';
 
       clearGeneratedResult();
-
       showStep(1);
     }
   </script>
