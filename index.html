@@ -340,7 +340,7 @@
     }
 
     .export-info {
-      font-size: 24px;
+      font-size: 30px;
       line-height: 1.55;
       white-space: pre-line;
       word-break: break-word;
@@ -351,7 +351,7 @@
     }
 
     .export-record {
-      font-size: 27px;
+      font-size: 30px;
       line-height: 1.55;
       background: #f8f8f8;
       border-radius: 12px;
@@ -487,9 +487,6 @@
       <div class="step" id="step2">
         <div class="question-title">輸入血糖數據</div>
 
-        <label>飯前 30 分時間</label>
-        <input id="beforeTime" type="time">
-
         <label>飯前 30 分血糖</label>
         <input id="beforeSugar" type="number" inputmode="numeric" placeholder="例如：133">
 
@@ -501,9 +498,6 @@
 
         <label>最高峰血糖</label>
         <input id="peakSugar" type="number" inputmode="numeric" placeholder="例如：204">
-
-        <label>飯後 3 小時時間</label>
-        <input id="afterTime" type="time">
 
         <label>飯後 3 小時血糖</label>
         <input id="afterSugar" type="number" inputmode="numeric" placeholder="例如：114">
@@ -749,6 +743,27 @@
       return text.substring(0, maxLength) + '...';
     }
 
+    function addMinutesToTime(timeText, minutesToAdd) {
+      if (!timeText) return '';
+
+      const [hourText, minuteText] = timeText.split(':');
+      const hour = Number(hourText);
+      const minute = Number(minuteText);
+
+      if (Number.isNaN(hour) || Number.isNaN(minute)) {
+        return '';
+      }
+
+      const totalMinutesInDay = 24 * 60;
+      const originalTotalMinutes = hour * 60 + minute;
+      const calculatedTotalMinutes = (originalTotalMinutes + minutesToAdd + totalMinutesInDay) % totalMinutesInDay;
+
+      const calculatedHour = Math.floor(calculatedTotalMinutes / 60);
+      const calculatedMinute = calculatedTotalMinutes % 60;
+
+      return `${String(calculatedHour).padStart(2, '0')}:${String(calculatedMinute).padStart(2, '0')}`;
+    }
+
     function getFormData(includeImages) {
       return {
         date: document.getElementById('date').value,
@@ -756,12 +771,12 @@
         mealTime: document.getElementById('mealTime').value,
         feeling: getShortFeeling(document.getElementById('feeling').value, 120),
         beforeSugar: document.getElementById('beforeSugar').value,
-        beforeTime: document.getElementById('beforeTime').value,
+        beforeTime: addMinutesToTime(document.getElementById('mealTime').value, -30),
         mealSugar: document.getElementById('mealSugar').value,
         peakSugar: document.getElementById('peakSugar').value,
         peakTime: document.getElementById('peakTime').value,
         afterSugar: document.getElementById('afterSugar').value,
-        afterTime: document.getElementById('afterTime').value,
+        afterTime: addMinutesToTime(document.getElementById('mealTime').value, 180),
         foodImg: includeImages ? document.getElementById('foodThumb').src : '',
         chartImg: includeImages ? document.getElementById('chartThumb').src : ''
       };
@@ -771,8 +786,7 @@
       return `
         <div id="exportCard" class="export-card">
           <div class="export-left">
-            <div class="export-info">
-日期：${escapeHtml(data.date || '未填')}
+            <div class="export-info">日期：${escapeHtml(data.date || '未填')}
 食物：${escapeHtml(data.food || '未填')}
 進食時間：${escapeHtml(data.mealTime || '未填')}
 感受：${escapeHtml(data.feeling || '未填')}
