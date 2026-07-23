@@ -1045,8 +1045,11 @@
     }
 
     function buildExportHtml(data) {
-      const yesChecked = data.returnToBaseline === true ? '☑' : '☐';
-      const noChecked = data.returnToBaseline === false ? '☑' : '☐';
+      const baselineResultText = data.returnToBaseline === true
+        ? '☑ 是（±10 mg/dL 內）'
+        : data.returnToBaseline === false
+          ? '☑ 否（超出 ±10 mg/dL）'
+          : '未填';
       const glucoseRiseText = data.glucoseRise !== ''
         ? `${escapeHtml(data.glucoseRise)} mg/dL`
         : '未填';
@@ -1071,7 +1074,7 @@
               🕒 飯後 3 小時 (${escapeHtml(data.afterTime || '未填')})：${escapeHtml(data.afterSugar || '未填')} mg/dL
             </div>
 
-            <div class="export-metrics">📊 CGM 三大指標<br>📈 血糖上升幅度 ${glucoseRiseText}<br>⏱ 到達最高峰 ${peakDurationText}<br>🔄 3 小時是否回到接近飯前血糖？<br>${yesChecked} 是（±10 mg/dL 內）<br>${noChecked} 否</div>
+            <div class="export-metrics">📊 CGM 三大指標<br>📈 血糖上升幅度 ${glucoseRiseText}<br>⏱ 到達最高峰 ${peakDurationText}<br>🔄 3 小時是否回到接近飯前血糖？<br>${baselineResultText}</div>
 
             <img class="export-food-img" src="${data.foodImg}">
           </div>
